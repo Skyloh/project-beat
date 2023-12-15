@@ -12,4 +12,9 @@ public class SampleScript : StateMachineBehaviour
     {
         Debug.Log($"{m_debug} w/ elapsed time {stateInfo.normalizedTime}.");
     }
+
+    public string GetDebug()
+    {
+        return name + ' ' + m_debug;
+    }
 }
