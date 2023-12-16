@@ -13,7 +13,7 @@ public class NonAnimatorTest : MonoBehaviour
     {
         foreach (var reference in references)
         {
-            Debug.Log(reference.GetDebug());
+            //Debug.Log(reference.GetDebug());
         }
     }
 }
