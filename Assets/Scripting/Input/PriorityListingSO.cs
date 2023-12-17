@@ -9,11 +9,7 @@ public class PriorityListingSO : ScriptableObject
 {
     [SerializeField] private List<InputType> m_inputPriorities;
 
-    private void Awake()
-    {
-        // God, I hate editor SOs. Why do the values appear, then vanish?
-        Debug.Log("Remember to press the '+' then '-' sign under the empty list to get default values.");
-    }
+    // God, I hate editor SOs. Why do the values appear, then vanish?
 
     private void OnValidate()
     {
