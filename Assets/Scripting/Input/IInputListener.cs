@@ -2,5 +2,6 @@ using UnityEngine.InputSystem;
 
 public interface IInputListener
 {
-    void HandleInput(InputType type, InputAction.CallbackContext context);
+    void Accept(InputType type, InputAction.CallbackContext context);
+    bool IsReady();
 }
