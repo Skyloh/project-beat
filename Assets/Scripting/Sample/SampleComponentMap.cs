@@ -8,6 +8,7 @@ public class SampleComponentMap : MonoBehaviour, IComponentMap
     [SerializeField] private List<SerializeableKVPair<ComponentType, List<MonoBehaviour>>> m_serializedMap;
     private Dictionary<Type, List<MonoBehaviour>> m_map;
 
+    Animator temp;
     void Awake()
     {
         m_map = new Dictionary<Type, List<MonoBehaviour>>();
@@ -28,6 +29,7 @@ public class SampleComponentMap : MonoBehaviour, IComponentMap
         }
 
         Animator animator = GetComponent<Animator>();
+        temp = animator;
         var behaviours = animator.GetBehaviours<SequenceBehaviour>();
         Array.ForEach<SequenceBehaviour>(behaviours, (SequenceBehaviour behaviour) => behaviour.SetupSequence(this));
     }
@@ -40,5 +42,14 @@ public class SampleComponentMap : MonoBehaviour, IComponentMap
         }
 
         return default;
+    }
+
+    void Start()
+    {
+        //InvokeRepeating(nameof(Test), 0f, 1f);
+    }
+    void Test()
+    {
+        temp.Update(1f/12f);
     }
 }

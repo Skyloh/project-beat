@@ -1,70 +1,92 @@
 using UnityEngine;
 
+[SharedBetweenAnimators]
 public class SequenceBehaviour : StateMachineBehaviour
 {
     [SerializeField] private SequenceSO m_sequence;
 
-    private float m_initialTime;
-    private int m_initialFrame;
     private AnimationClip m_clip;
+    private bool m_entered;
 
-    public void SetupSequence(IComponentMap map) => m_sequence.SetupAll(map);
+    /// <summary>
+    /// What number loop are we on? Only applies to looping animations.
+    /// </summary>
+    private int m_iterations;
+
+    public void SetupSequence(IComponentMap map)
+    {
+        m_entered = false; // this is needed bc apparently setting the default value to false still doesn't work.
+        m_sequence.SetupAll(map);
+    }
 
     // Called the first frame the state is evaluated
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        // guard clause to prevent same-frame entering
+        // apparently, a state can be entered multiple times on the same frame. I have no idea why.
+        if (m_entered) return;
+        m_entered = true;
+
         if (m_clip == null) m_clip = animator.GetCurrentAnimatorClipInfo(layerIndex)[0].clip;
 
-        m_initialTime = Time.realtimeSinceStartup;
-        m_initialFrame = Time.frameCount;
+        m_iterations = 0;
+
         m_sequence.ResetSequence();
-        m_sequence.Tick(0);
+        // m_sequence.Tick(0); // force evaluation of first frame (frame 0) upon state entry.
     }
 
     // Called on every Update frame excluding the first and last
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        // TODO Fix this.
-        // It's printing out sets of 4 at once, which is most certainly wrong.
-        // Note: elapsed frames is not in the same timescale as Update, maybe I should just use the TimeToFrames instead of frameCount?
-        
-        float time = Time.realtimeSinceStartup;
-        float elapsed = time - m_initialTime;
 
-        int frame_time = Time.frameCount;
-        int elapsed_frames = frame_time - m_initialFrame;
-        
-        // if we've gone over the clip length, reset
-        if (elapsed >= stateInfo.length)
+        /*
+         * CeilToInt Version.
+         * Not deleted in case the "skipping frames" issue comes up again.
+         * This variant worked aside from the fact that it ticked frames one in advance to the ceil.
+         * 
+        // Debug.Log(stateInfo.normalizedTime + " " + m_iterations);
+        // if we've wrapped past the end of the clip, reset
+        if (stateInfo.normalizedTime > (m_iterations + 1))
         {
-            // start index at 0
+            // Debug.Log($"state time: {stateInfo.normalizedTime} iters: {m_iterations}");
+            ++m_iterations;
+
+            m_sequence.ResetSequence();
+            m_sequence.Tick(0);
+
+            // do not evaluate the current seq frame this Update cycle, which would always be >=1
+            // this is bc the normalizedTime mod 1 ceiled is always non-0.
+            // If I left this as is (w/o return), the 0th frame would always be evaluated on the
+            // same cycle as the 1st frame on ANY MACHINE regardless of lag spikes or not.
+            // With this return, I'm ensuring that the 0th frame gets its own cycle, always.
+            // Future keyframes might get scrubbed past by lag spikes, but that's fine.
+            return;
+        }
+
+        int current_frame = ConvertToFrames(stateInfo.normalizedTime);
+
+        m_sequence.Tick(current_frame);
+        */
+
+        if (stateInfo.normalizedTime > (m_iterations + 1))
+        {
+            ++m_iterations;
+
+            m_sequence.Tick(Mathf.CeilToInt(m_clip.length * m_clip.frameRate));
             m_sequence.ResetSequence();
 
-            // find the "current" framecount
-            elapsed_frames = TimeToFrames(elapsed);// goes beyond the clip bounds to evaluate all trailing keys
-            elapsed %= stateInfo.length; // wraparound so we see how far into the next cycle we've already advanced by this point
-
-            m_sequence.Tick(elapsed_frames); // evaluate beyond frames
-            elapsed_frames = TimeToFrames(elapsed); // update elapsed frames so we can tick the keys we've advanced past
-            m_sequence.Tick(elapsed_frames); // evaluate early frames 
-
-            // update initials so we don't fire this forever
-            m_initialTime = time - elapsed;
-            m_initialFrame = frame_time - elapsed_frames;
+            // see the commented-out version for similar logic on why this returns.
+            // NOTE: this might result in skipped/inconsistent frames, so keep an eye on it.
+            return;
         }
-        else
-        {
-            m_sequence.Tick(elapsed_frames);
-        }
+
+        int current_frame = ConvertToFrames(stateInfo.normalizedTime);
+
+        m_sequence.Tick(current_frame);
     }
 
-    private int TimeToFrames(float time) => Mathf.CeilToInt(time * m_clip.frameRate);
+    // Add some sort of cleanup method to this exit.
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) => m_entered = false;
 
-    /*
-    // Called the last frame the state is evaluated before transition
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-
-    }
-    */
+    private int ConvertToFrames(float time) => Mathf.FloorToInt(time % 1 * m_clip.length * m_clip.frameRate);
 }

@@ -23,5 +23,9 @@ public abstract class TrackSO<TValue, TComponent> : ScriptableObject, ITrack whe
         }
     }
 
-    public void Setup(IComponentMap map) => m_listeners = map.GetReference<TComponent>();
+    public void Setup(IComponentMap map)
+    {
+        m_keyframes.Sort((SerializeableKVPair<int, TValue> v1, SerializeableKVPair<int, TValue> v2) => v1.Key - v2.Key);
+        m_listeners = map.GetReference<TComponent>();
+    }
 }
