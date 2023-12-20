@@ -12,5 +12,5 @@ public interface IComponentMap
     /// </summary>
     /// <typeparam name="TComponent"></typeparam>
     /// <returns></returns>
-    List<TComponent> GetReference<TComponent>() where TComponent : MonoBehaviour; // type sourced from "typeof(TComponent)"
+    List<TComponent> GetReference<TComponent>(ComponentType type) where TComponent : MonoBehaviour; // type sourced from "typeof(TComponent)"
 }
