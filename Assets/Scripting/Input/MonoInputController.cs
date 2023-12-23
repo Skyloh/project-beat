@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TNRD;
+using System;
 
 /// <summary>
 /// The monobehaviour script for handling input. Links several raw C# classes together.
@@ -88,4 +89,6 @@ public class MonoInputController : MonoBehaviour
     /// <param name="type"></param>
     /// <returns></returns>
     public bool IsInputHeld(InputType type) => m_mapping.IsInputHeld(type);
+
+    public Func<InputType, bool> GetMappingCallback() => m_mapping.IsInputHeld;
 }

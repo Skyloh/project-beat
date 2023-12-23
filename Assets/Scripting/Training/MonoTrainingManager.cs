@@ -22,7 +22,7 @@ public class MonoTrainingManager : MonoBehaviour
 
     private int m_hash;
 
-    private void Awake()
+    private void Start()
     {
         m_animator.enabled = false;
         m_hash = Animator.StringToHash(STATE_NAME);
@@ -49,7 +49,7 @@ public class MonoTrainingManager : MonoBehaviour
         m_animator.Play(m_hash, 0, frame / (m_clip.length * m_clip.frameRate) + 0.01f); // minor offset to fix inexact frame issue
         m_animator.Update(0f); // force an animator update
 
-        m_sequence.Tick(frame);
+        m_sequence.Progress(frame);
     }
 
     public void ScrubAnimation()

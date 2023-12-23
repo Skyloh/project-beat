@@ -19,6 +19,15 @@ public class SequenceBehaviour : StateMachineBehaviour
         m_sequence.SetupAll(map);
     }
 
+    // I'm not exposing an entire sequence for a single method, nor am I serializing a reference to a sequence in a track's data block
+    // that is contained within that sequence. I could add a Decorator to the emission in TrackSO, but that requires changing access types
+    // on the class which is overkill and will look disgusting (since it's only used by one other class instance). I think this is the lesser
+    // of two pretty annoying evils.
+    public void LoopBackIfActive(int frames)
+    {
+        if (m_entered) m_sequence.LoopBack(frames); // if we're the active state and we receive the signal to loop back, do so.
+    }
+
     // Called the first frame the state is evaluated
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -72,7 +81,7 @@ public class SequenceBehaviour : StateMachineBehaviour
         {
             ++m_iterations;
 
-            m_sequence.Tick(Mathf.CeilToInt(m_clip.length * m_clip.frameRate));
+            m_sequence.Progress(Mathf.CeilToInt(m_clip.length * m_clip.frameRate));
             m_sequence.ResetSequence();
 
             // see the commented-out version for similar logic on why this returns.
@@ -82,11 +91,15 @@ public class SequenceBehaviour : StateMachineBehaviour
 
         int current_frame = ConvertToFrames(stateInfo.normalizedTime);
 
-        m_sequence.Tick(current_frame);
+        m_sequence.Progress(current_frame);
     }
 
     // Add some sort of cleanup method to this exit.
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) => m_entered = false;
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        m_sequence.ResetSequence(); // TODO is this right?
+        m_entered = false;
+    }
 
     private int ConvertToFrames(float time) => Mathf.FloorToInt(time % 1 * m_clip.length * m_clip.frameRate);
 }

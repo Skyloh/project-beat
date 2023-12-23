@@ -11,6 +11,9 @@ public class SequenceSO : ScriptableObject
 
     public void ResetSequence() => m_tracks.ForEach((SerializableInterface<ITrack> track) => track.Value.Reset());
     
-    public void Tick(int frames_elapsed) => m_tracks.ForEach((SerializableInterface<ITrack> track) => track.Value.Scrub(frames_elapsed));
-    
+    public void Progress(int frames_elapsed) => m_tracks.ForEach((SerializableInterface<ITrack> track) => track.Value.ScrubForward(frames_elapsed));
+
+    public void LoopBack(int to_frame) => m_tracks.ForEach((SerializableInterface<ITrack> track) => track.Value.JumpBack(to_frame));
+
+    // public List<ITrack> GetTracks() => m_tracks.ConvertAll<ITrack>(i => i.Value);
 }

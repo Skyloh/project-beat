@@ -4,7 +4,8 @@ using System;
 public enum ComponentType
 {
     Sample,
-    HitboxVisualizer
+    HitboxVisualizer,
+    LoopEvaluator
 }
 
 public static class ComponentTypeHelpers
@@ -15,7 +16,8 @@ public static class ComponentTypeHelpers
         {
             ComponentType.Sample => typeof(SampleEvaluator),
             ComponentType.HitboxVisualizer => typeof(MonoHitboxVisualizer),
-            _ => throw new ArgumentException($"Type {type} has not been defined!"),
+            ComponentType.LoopEvaluator => typeof(MonoInputConditionalEvaluator),
+            _ => throw new ArgumentException($"Type {type} has not been defined!")
         };
     }
 }

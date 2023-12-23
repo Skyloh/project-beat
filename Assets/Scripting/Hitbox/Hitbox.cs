@@ -45,4 +45,9 @@ public class Hitbox // stub implementation; needs abstraction into an interface?
     public Vector3 GetBounds() => m_bounds;
     public int GetID() => m_id;
     public int GetPriority() => m_priority;
+
+    public override string ToString()
+    {
+        return $"ID- {m_id}, Pos- {m_posOffset}, Bounds- {m_bounds}";
+    }
 }
