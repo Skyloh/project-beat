@@ -5,7 +5,8 @@ public enum ComponentType
 {
     Sample,
     HitboxVisualizer,
-    LoopEvaluator
+    LoopEvaluator,
+    InputController
 }
 
 public static class ComponentTypeHelpers
@@ -16,7 +17,8 @@ public static class ComponentTypeHelpers
         {
             ComponentType.Sample => typeof(SampleEvaluator),
             ComponentType.HitboxVisualizer => typeof(MonoHitboxVisualizer),
-            ComponentType.LoopEvaluator => typeof(MonoInputConditionalEvaluator),
+            ComponentType.LoopEvaluator => typeof(MonoConditionalEvaluator),
+            ComponentType.InputController => typeof(MonoInputController),
             _ => throw new ArgumentException($"Type {type} has not been defined!")
         };
     }

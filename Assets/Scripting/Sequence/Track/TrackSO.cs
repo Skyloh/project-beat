@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-public abstract class TrackSO<TValue, TComponent> : ScriptableObject, ITrack where TComponent : MonoBehaviour, IEvaluator<TValue>
+public abstract class TrackSO<TValue, TComponent> : ScriptableObject, IComponentMapRetriever, ITrack where TComponent : MonoBehaviour, IEvaluator<TValue>
 {
     // frames - value
     [SerializeField] private List<SerializeableKVPair<int, TValue>> m_keyframes;
@@ -45,8 +45,6 @@ public abstract class TrackSO<TValue, TComponent> : ScriptableObject, ITrack whe
     {
         m_keyframes.Sort((SerializeableKVPair<int, TValue> v1, SerializeableKVPair<int, TValue> v2) => v1.Key - v2.Key);
         m_listeners = map.GetReference<TComponent>(GetComponentType());
-
-        PostSetup();
     }
 
     public override string ToString()
@@ -56,10 +54,5 @@ public abstract class TrackSO<TValue, TComponent> : ScriptableObject, ITrack whe
         return builder.ToString();
     }
 
-    protected virtual void PostSetup() 
-    { 
-        // pass
-    }
-
-    protected abstract ComponentType GetComponentType();
+    public abstract ComponentType GetComponentType();
 }
